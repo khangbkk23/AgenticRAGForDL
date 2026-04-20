@@ -1,0 +1,52 @@
+llm:
+  provider: "ollama"
+  base_url: "http://localhost:8000/v1" 
+  model_name: "Qwen/Qwen2.5-Coder-7B-Instruct"
+  temperature: 0.1             
+  max_tokens: 2048
+  context_length: 32768         
+
+agent:
+  max_steps: 5
+  allowed_actions:
+    - retrieve
+    - profile
+    - rewrite
+    - validate
+    - finish
+  early_stopping: true
+
+retrieval:
+  dense:
+    embedding_model: "BAAI/bge-small-en-v1.5"
+    vector_store_path: "data/embeddings"
+    top_k: 15
+  reranker:
+    enabled: true
+    model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    top_k: 3                      
+tools:
+  profiler:
+    enabled: true
+    warmup_steps: 3               
+    active_steps: 5
+  code_executor:
+    timeout: 30                
+    isolation: "docker"           # "subprocess"/"docker"
+    hardware_limits:
+      max_ram_gb: 16
+      max_vram_gb: 6        
+      cuda_visible_devices: "0" 
+
+optimization:
+  target_metrics:
+    latency_reduction_pct: 15
+    vram_reduction_pct: 10
+  techniques:
+    enable_amp: true 
+    enable_compile: true          # torch.compile()
+    enable_tensorrt: false   
+
+logging:
+  level: "DEBUG" 
+  log_file: "logs/agent_trace.log"
